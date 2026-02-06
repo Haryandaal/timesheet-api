@@ -2,6 +2,8 @@ package id.timesheet.api.controller;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import id.timesheet.api.service.StatusService;
 import id.timesheet.api.util.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "Status", description = "Status API")
 @RestController
 @RequestMapping(path = "/api/v1/status")
 @RequiredArgsConstructor
@@ -22,18 +25,27 @@ public class StatusController {
 
     private final StatusService statusService;
 
+    @Operation(
+            summary = "Create new status"
+    )
     @PostMapping
     public ResponseEntity<ApiResponse<StatusResponse>> create(@RequestBody StatusRequest request) {
         StatusResponse statusResponse = statusService.create(request);
-        return ResponseUtil.buildResponse(HttpStatus.CREATED, "status is created successfully", statusResponse);
+        return ResponseUtil.buildResponse(HttpStatus.CREATED, "status created successfully", statusResponse);
     }
 
+    @Operation(
+            summary = "Fetch status by id"
+    )
     @GetMapping(path = "{id}")
     public ResponseEntity<ApiResponse<StatusResponse>> getById(@PathVariable String id) {
         StatusResponse response = statusService.getById(id);
         return ResponseUtil.buildResponse(HttpStatus.OK, "success fetched status", response);
     }
 
+    @Operation(
+            summary = "Fetch statuses"
+    )
     @GetMapping
     public ResponseEntity<ApiResponse<List<StatusResponse>>> getAll(
             @RequestParam(name = "page", defaultValue = "1", required = false) Integer page,
@@ -56,12 +68,18 @@ public class StatusController {
         }
     }
 
+    @Operation(
+            summary = "Update existing status by id"
+    )
     @PutMapping(path = "{id}")
     public ResponseEntity<ApiResponse<StatusResponse>> updateById(@PathVariable String id, StatusRequest request) {
         StatusResponse response = statusService.updateById(id, request);
         return ResponseUtil.buildResponse(HttpStatus.OK, "success updated status", response);
     }
 
+    @Operation(
+            summary = "Delete status by id (soft delete)"
+    )
     @DeleteMapping(path = "{id}")
     public ResponseEntity<ApiResponse<String>> deleteById(@PathVariable String id) {
         statusService.deleteById(id);

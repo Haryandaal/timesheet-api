@@ -3,6 +3,12 @@ package id.timesheet.api.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_m_user_account")
@@ -11,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @SuperBuilder
-public class UserAccount extends BaseEntity{
+public class UserAccount extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -33,4 +39,15 @@ public class UserAccount extends BaseEntity{
     @OneToOne
     @JoinColumn(name = "employee_id", referencedColumnName = "id")
     private Employee employee;
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<Role> myRoles = List.of(role);
+        return myRoles.stream().map(userRole -> new SimpleGrantedAuthority("ROLE_" + role.getName())).toList();
+    }
+
+    public String getUsername() {
+        return email;
+    }
 }

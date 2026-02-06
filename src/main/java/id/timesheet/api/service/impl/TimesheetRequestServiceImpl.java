@@ -12,9 +12,11 @@ import id.timesheet.api.repository.TimesheetDetailRepository;
 import id.timesheet.api.repository.TimesheetRequestRepository;
 import id.timesheet.api.service.TimesheetRequestService;
 import id.timesheet.api.specification.TimesheetRequestSpecification;
+import id.timesheet.api.util.CurrentUser;
 import id.timesheet.api.util.SortUtil;
 import id.timesheet.api.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TimesheetRequestServiceImpl implements TimesheetRequestService {
@@ -45,14 +48,13 @@ public class TimesheetRequestServiceImpl implements TimesheetRequestService {
     public TimesheetRequestResponse create(TimesheetRequestRequest request) {
         validationUtil.validate(request);
 
-        Employee employee = employeeRepository.findById(request.getEmployeeId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "employee is not found"));
+        UserAccount userAccount = CurrentUser.getCurrentUser();
 
         Status status = statusRepository.findByName("pending".toLowerCase())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "pending status is not found"));
 
         TimesheetRequest timesheetRequest = TimesheetRequest.builder()
-                .employee(employee)
+                .employee(userAccount.getEmployee())
                 .requestDate(LocalDateTime.now())
                 .status(status)
                 .approvedBy(null)
@@ -63,7 +65,7 @@ public class TimesheetRequestServiceImpl implements TimesheetRequestService {
 
         List<TimesheetDetail> details = request.getTimesheetDetails().stream()
                 .map(d -> TimesheetDetail.builder()
-                        .employee(employee)
+                        .employee(userAccount.getEmployee())
                         .timesheetRequest(timesheetRequest)
                         .workDate(LocalDateTime.parse(d.getWorkDate()))
                         .locationType(d.getLocationType())
@@ -103,10 +105,12 @@ public class TimesheetRequestServiceImpl implements TimesheetRequestService {
     @Transactional(readOnly = true)
     @Override
     public Page<TimesheetRequestResponse> getTimesheetRequests(SearchTimesheetRequest request) {
+        String employeeId = CurrentUser.getCurrentUser().getEmployee().getId();
+
         Sort sort = SortUtil.parseSort(request.getSortBy());
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
         Specification<TimesheetRequest> specification = TimesheetRequestSpecification.getSpecification(request);
-        Page<TimesheetRequest> timesheetRequests = timesheetRequestRepository.findAll(specification, pageable);
+        Page<TimesheetRequest> timesheetRequests = timesheetRequestRepository.findAllByEmployeeId(employeeId, specification, pageable);
         return timesheetRequests.map(this::toResponse);
     }
 

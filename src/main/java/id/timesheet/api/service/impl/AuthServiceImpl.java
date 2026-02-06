@@ -1,8 +1,9 @@
 package id.timesheet.api.service.impl;
 
-import id.timesheet.api.dto.response.AuthResponse;
 import id.timesheet.api.dto.request.LoginRequest;
 import id.timesheet.api.dto.request.RegisterRequest;
+import id.timesheet.api.dto.response.AuthResponse;
+import id.timesheet.api.dto.response.RegisterResponse;
 import id.timesheet.api.entity.Department;
 import id.timesheet.api.entity.Employee;
 import id.timesheet.api.entity.Role;
@@ -12,12 +13,17 @@ import id.timesheet.api.repository.EmployeeRepository;
 import id.timesheet.api.repository.RoleRepository;
 import id.timesheet.api.repository.UserRepository;
 import id.timesheet.api.service.AuthService;
+import id.timesheet.api.service.JwtService;
+import id.timesheet.api.service.UserService;
 import id.timesheet.api.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -28,11 +34,14 @@ public class AuthServiceImpl implements AuthService {
     private final EmployeeRepository employeeRepository;
     private final RoleRepository roleRepository;
     private final DepartmentRepository departmentRepository;
+    private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
     private final ValidationUtil validationUtil;
 
 
     @Override
-    public AuthResponse register(RegisterRequest request) {
+    public RegisterResponse register(RegisterRequest request) {
         validationUtil.validate(request);
 
         // Validate unique user
@@ -85,17 +94,26 @@ public class AuthServiceImpl implements AuthService {
         return toAuthResponse(user);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public AuthResponse login(LoginRequest request) {
-        UserAccount user = userAccountRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
 
-        if (!matches(request.getPassword(), user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+        UserAccount userAccount = userService.getOneByEmail(request.getEmail());
+        if (userAccount == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid email");
         }
 
-        return toAuthResponse(user);
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAccount.getEmail(), request.getPassword()));
+        if (!authentication.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bad Credentials");
+        }
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String accessToken = jwtService.generateAccessToken(userAccount, 30L);
+        return AuthResponse.builder()
+                .id(userAccount.getId())
+                .accessToken(accessToken)
+                .role(userAccount.getRole().getName())
+                .build();
     }
 
     private String hashPassword(String rawPassword) {
@@ -106,9 +124,9 @@ public class AuthServiceImpl implements AuthService {
         return BCrypt.checkpw(raw, hashed);
     }
 
-    private AuthResponse toAuthResponse(UserAccount user) {
-        return AuthResponse.builder()
-                .userId(user.getId())
+    private RegisterResponse toAuthResponse(UserAccount user) {
+        return RegisterResponse.builder()
+                .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .roleName(user.getRole().getName())
