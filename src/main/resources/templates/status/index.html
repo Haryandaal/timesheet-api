@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Status</title>
+</head>
+<body>
+
+<table>
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="statuses : ${statuses}">
+        <td th:text="${statuses.id}"></td>
+        <td th:text="${statuses.name}"></td>
+        <td><a th:href="@{status/edit/{id} (id=${statuses.id})}">Edit</a></td>
+        <td><a th:href="@{status/delete/{id} (id=${statuses.id})}">Delete</a></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<a th:href="@{status/create}">Create Department</a>
+
+</body>
+</html>

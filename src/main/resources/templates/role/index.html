@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Role</title>
+</head>
+<body>
+
+<table>
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Level</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="roles : ${roles}">
+        <td th:text="${roles.id}"></td>
+        <td th:text="${roles.name}"></td>
+        <td th:text="${roles.level}"></td>
+        <td><a th:href="@{role/edit/{id} (id=${roles.id})}">Edit</a></td>
+        <td><a th:href="@{role/delete/{id} (id=${roles.id})}">Delete</a></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<a th:href="@{/role/create}">Create Role</a>
+
+</body>
+</html>

@@ -14,6 +14,6 @@ public class EmployeeResponse {
     private String fullName;
     private String phoneNumber;
     private String position;
-    private String  departmentName;
+    private String departmentName;
     private String managerName;
 }

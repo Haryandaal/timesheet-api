@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Account</title>
+</head>
+<body>
+
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Email</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.employee.fullName}"></td>
+        <td th:text="${user.role.name}"></td>
+        <td th:text="${user.email}"></td>
+        <td>
+            <a th:href="@{/user/edit/{id}(id=${user.id})}">Edit</a>
+            <a th:href="@{/user/delete/{id}(id=${user.id})}">Delete</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<a th:href="@{/user/create}">Create User</a>
+
+
+</body>
+</html>

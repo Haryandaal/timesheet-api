@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Form</title>
+</head>
+<body>
+<form method="post"
+      th:object="${user}"
+      th:action="@{/user/save}">
+
+    <!-- ID hidden -->
+    <input type="hidden" th:field="*{id}"/>
+
+    <div>
+        <label>Username</label>
+        <input type="text" th:field="*{usernameField}"/>
+    </div>
+
+    <div>
+        <label>Email</label>
+        <input type="text" th:field="*{email}"/>
+    </div>
+
+    <div th:if="${user.id == null or user.id == ''}">
+        <label>Password</label>
+        <input type="text" th:field="*{password}"/>
+    </div>
+
+    <!--     Roles -->
+    <div>
+        <label>Roles</label>
+        <select th:field="*{role}">
+            <option value="">-- Select Role --</option>
+            <option th:each="role : ${roles}"
+                    th:value="${role.id}"
+                    th:text="${role.name}">
+            </option>
+        </select>
+    </div>
+
+    <!--     Employees -->
+    <div th:if="${user.employee == null or user.employee == ''}">
+        <label>Employee</label>
+        <select th:field="*{employee}">
+            <option value="">-- Select Employee --</option>
+            <option th:each="emp : ${employees}"
+                    th:value="${emp.id}"
+                    th:text="${emp.getFullName()}">
+            </option>
+        </select>
+    </div>
+
+    <button type="submit">Save</button>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Status Form</title>
+</head>
+<body>
+
+<form method="post" th:object="${status}" th:action="@{/status/save}">
+
+    <input type="hidden" th:field="*{id}" />
+
+    <div>
+        <label>Name</label>
+        <input th:field="*{name}" placeholder="Name">
+    </div>
+
+    <button type="submit">Save Changes</button>
+</form>
+
+
+</body>
+</html>

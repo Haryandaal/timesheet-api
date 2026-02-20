@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Form</title>
+</head>
+<body>
+<form method="post"
+      th:object="${employee}"
+      th:action="@{/employee/save}">
+
+    <!-- ID hidden -->
+    <input type="hidden" th:field="*{id}"/>
+
+    <div>
+        <label>Code</label>
+        <input type="text" th:field="*{code}"/>
+    </div>
+
+    <div>
+        <label>Full Name</label>
+        <input type="text" th:field="*{fullName}"/>
+    </div>
+
+    <div>
+        <label>Phone Number</label>
+        <input type="text" th:field="*{phoneNumber}"/>
+    </div>
+
+    <div>
+        <label>Position</label>
+        <input type="text" th:field="*{position}"/>
+    </div>
+
+<!--     Department -->
+    <div>
+        <label>Department</label>
+        <select th:field="*{department}">
+            <option value="">-- Select Department --</option>
+            <option th:each="dept : ${departments}"
+                    th:value="${dept.id}"
+                    th:text="${dept.name}">
+            </option>
+        </select>
+    </div>
+
+    <!-- Manager -->
+    <div>
+        <label>Manager</label>
+        <select th:field="*{manager}">
+            <option value="">-- No Manager --</option>
+            <option th:each="mgr : ${managers}"
+                    th:value="${mgr.id}"
+                    th:text="${mgr.fullName}">
+            </option>
+        </select>
+    </div>
+
+    <button type="submit">Save</button>
+</form>
+
+</body>
+</html>

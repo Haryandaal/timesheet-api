@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<form method="post" th:object="${role}" th:action="@{/role/save}">
+    <input type="hidden" th:field="*{id}"/>
+    <div>
+        <label>Name</label>
+        <input id="name" name="name" th:field="${role.name}" placeholder="Name">
+        <label>Level</label>
+        <input id="level" name="level" th:field="${role.level}" placeholder="Level">
+    </div>
+    <button type="submit">Save Changes</button>
+</form>
+
+</body>
+</html>

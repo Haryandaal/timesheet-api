@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:insert="layout/main.html :: linkscript">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link href="../../assets/plugins/bootstrap/css/bootstrap.css" rel="stylesheet"> -->
+    <title>Employee</title>
+</head>
+
+<body>
+<!--<div th:replace="layout/main.html :: preloader"></div>-->
+
+<div class="main-wrapper">
+    <div th:replace="layout/main.html :: navbar"></div>
+</div>
+
+<div>
+    <div class="page-wrapper">
+        <div class="container-fluid">
+            <div class="text-end mb-3">
+                <form method="get" th:action="@{/employee/create}" class="d-inline">
+                    <button type="submit" class="btn btn-success">Create</button>
+                </form>
+            </div>
+            <table id="myTable" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Phone Number</th>
+                    <th>Position</th>
+                    <th>Department</th>
+                    <th>Manager</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!--    <tr th:each="emp : ${employees}">-->
+                <!--        <td th:text="${emp.code}"></td>-->
+                <!--        <td th:text="${emp.fullName}"></td>-->
+                <!--        <td th:text="${emp.department.name}"></td>-->
+                <!--        <td th:text="${emp.manager != null ? emp.manager.fullName : '-'}"></td>-->
+                <!--        <td>-->
+                <!--            <a th:href="@{/employee/edit/{id}(id=${emp.id})}">Edit</a>-->
+                <!--            <a th:href="@{/employee/delete/{id}(id=${emp.id})}">Delete</a>-->
+                <!--        </td>-->
+                <!--    </tr>-->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div th:replace="layout/main.html :: footer"></div>
+
+</body>
+
+<script src="../../assets/plugins/datatables/media/js/jquery.js"></script>
+<script src="../../assets/plugins/datatables/media/js/jquery.dataTables.js"></script>
+<script>
+    $(document).ready(() => {
+        console.log("Hello World");
+        let table = $('#myTable').DataTable({
+            serverSide: true,
+            ajax: {
+                url: '/api/v1/employee',
+                type: 'GET',
+                dataSrc: 'data'
+            },
+            columns: [
+                {
+                    data: 'code',
+                    name: 'Employee Code',
+                    autoWidth: true
+                },
+                {
+                    data: 'fullName',
+                    name: 'Full Name',
+                    autoWidth: true
+                },
+                {
+                    data: 'phoneNumber',
+                    name: 'Phone Number',
+                    autoWidth: true
+                },
+                {
+                    data: 'position',
+                    name: 'Position',
+                    autoWidth: true
+                },
+                {
+                    data: 'departmentName',
+                    name: 'Department',
+                    autoWidth: true
+                },
+                {
+                    data: 'managerName',
+                    name: 'Manager',
+                    autoWidth: true,
+                    render: function (data, type, full, meta) {
+                        return (full.managerName != null) ? full.managerName : `-`;
+                    }
+                },
+                {
+                    render: function (data, type, full, meta) {
+                        return `<a href="/employee/edit/${full.id}" class="btn btn-info">Edit</a> ` +
+                            // `<a href="/employee/delete/${full.id}" class="btn btn-danger" onclick="confirmDelete()">Delete</a>`
+                            ` <form action="/employee/delete/${full.id}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+                               </form>`;
+                    }
+                },
+            ]
+        });
+    })
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmDelete() {
+        event.preventDefault()
+        var form = event.target.form;
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+                Swal.fire({
+                    title: "Deleted!",
+                    text: "The data has been deleted.",
+                    icon: "success"
+                });
+            }
+        });
+    }
+</script>
+</html>

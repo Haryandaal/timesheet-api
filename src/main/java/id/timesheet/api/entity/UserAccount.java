@@ -50,4 +50,12 @@ public class UserAccount extends BaseEntity implements UserDetails {
     public String getUsername() {
         return email;
     }
+
+    public String getUsernameField() {
+        return username;
+    }
+
+    public void setUsernameField(String username) {
+        this.username = username;
+    }
 }

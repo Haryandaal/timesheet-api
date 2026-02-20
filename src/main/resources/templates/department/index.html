@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Department</title>
+</head>
+<body>
+
+<table>
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="departmentList : ${departments}">
+        <td th:text="${departmentList.id}"></td>
+        <td th:text="${departmentList.name}"></td>
+        <td><a th:href="@{department/edit/{id} (id=${departmentList.id})}">Edit</a></td>
+        <td><a th:href="@{department/delete/{id} (id=${departmentList.id})}">Delete</a></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<a th:href="@{department/create}">Create Department</a>
+
+</body>
+</html>
